@@ -5,17 +5,63 @@ import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 
 export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File>();
+  const [loading, setLoading] = useState(false);
 
   const onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       setFile(acceptedFiles[0]);
+      uploadFile(acceptedFiles[0]);
     }
   };
 
+  const uploadFile = async(file: File) => {
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // upload file to api
+    try {
+        const response = await fetch("http://localhost:8000/upload", {
+          method: "POST",
+          body: formData,
+          mode: "cors",
+        });
+
+        // error check 
+        if (!response.ok){
+          throw new Error(await response.text());
+        }
+
+        // prepare file for download
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "_nobg.png";
+        link.click();
+
+        // clean up
+        window.URL.revokeObjectURL(url);
+
+    }
+    catch (error){
+      console.error("Error uploading file:", error);
+      alert("Failed to process the image. Please try again later.");
+    }
+    finally {
+      setLoading(false);
+    }
+  };
+
+  
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: 'image/*' // Accept only image files
+    accept: {
+      'image/*': ['.jpg', '.jpeg', '.png'],
+    },
   });
 
   return (
@@ -43,6 +89,8 @@ export default function Home() {
             </p>
           )}
         </div>
+        {/* Loading Indicator */}
+        {loading && <p className="mt-4 text-gray-600">Processing your image...</p>}
       </div>
     </div>
   );

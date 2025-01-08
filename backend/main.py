@@ -1,10 +1,14 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+import mimetypes
 from io import BytesIO
 from rembg import remove
 from PIL import Image
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from PIL import ImageFilter
+import numpy as np
+
+
 
 
 MAX_FILE_SIZE =  16 * 1024 * 1024  # 16 MB Image Size Limit
@@ -12,10 +16,23 @@ MAX_FILE_SIZE =  16 * 1024 * 1024  # 16 MB Image Size Limit
 # init App
 app = FastAPI()
 
-# Rate limit
-limiter = Limiter(key_func=get_remote_address)
-app.state.limiter = limiter
-app.add_exception_handler(429, _rate_limit_exceeded_handler)
+# CORS Origins 
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:4173",
+    "http://localhost:4174",
+    "http://localhost:3000"
+]
+
+# Add CORSMiddleware to allow CORS requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
 
 @app.get("/")
@@ -24,8 +41,17 @@ async def root():
 
 
 @app.post("/upload")
-@limiter.limit("10/minute", key_func=lambda request: request.state.user_role) # rate limit 10 request per ip
 async def uploadFile(request: Request, file : UploadFile = File(...)):
+    
+    # debug delete later
+   # origin = request.headers.get('origin')
+ #   print(f"Request Origin: {origin}")
+    
+    # validate file 
+    mime_type, _ = mimetypes.guess_type(file.filename)
+
+    if mime_type not in ["image/png", "image/jpeg", "image/jpg"]:
+        return {"error": f"Unsupported File type: {mime_type}"}
     
     # if empty 
     if not file : 
@@ -43,10 +69,15 @@ async def uploadFile(request: Request, file : UploadFile = File(...)):
     # process the image
     try : 
         usrImage = Image.open(file.file)
-        outImage = remove(usrImage, post_process_mask=True)
+        outImage = remove(usrImage, alpha_matting=True)
+        
+        # enhance 
+       # outImage = outImage.filter(ImageFilter.EDGE_ENHANCE)
+        
         
         # Save image 
         imageIo = BytesIO()
+        outImage = outImage.convert("RGBA")  # Ensure it's in RGBA format (if it's not)
         outImage.save(imageIo, "PNG")
         imageIo.seek(0)
         
