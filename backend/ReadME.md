@@ -1,17 +1,5 @@
-python -m venv venv 
+[WIP] Coming Soon
 
-.\venv\Scripts\activate
+[] using slowapi to rateLimit 
 
-pip install "fastapi[standard]"
-
-pip install onnxruntime
-
-pip install pillow
-pip install slowapi
-
-
-uvicorn main:app --reload
-
-using slowapi to rateLimit 
-
-write test cases
+[] write test cases

@@ -1,0 +1,1 @@
+gcloud builds submit --tag us-east4-docker.pkg.dev/no-backdrop/nobg/nobgimg:nobgtag

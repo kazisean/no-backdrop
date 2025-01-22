@@ -3,12 +3,11 @@ from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import mimetypes
 from io import BytesIO
+import os
 from rembg import remove
 from PIL import Image
 from PIL import ImageFilter
 import numpy as np
-
-
 
 
 MAX_FILE_SIZE =  16 * 1024 * 1024  # 16 MB Image Size Limit
