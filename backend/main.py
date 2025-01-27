@@ -1,13 +1,10 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-import mimetypes
 from io import BytesIO
-import os
 from rembg import remove
 from PIL import Image
-from PIL import ImageFilter
-import numpy as np
+
 
 
 MAX_FILE_SIZE =  16 * 1024 * 1024  # 16 MB Image Size Limit
@@ -33,50 +30,40 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-
+# Home Page info
 @app.get("/")
 async def root():
-    return {"message": "Please See https://no.hossain.cc/docs for more info"}
+    return {"message": "Please See /docs for more info"}
 
 
+# Upload function
 @app.post("/upload")
 async def uploadFile(request: Request, file : UploadFile = File(...)):
-    
-    # debug delete later
-   # origin = request.headers.get('origin')
- #   print(f"Request Origin: {origin}")
-    
-    # validate file 
-    mime_type, _ = mimetypes.guess_type(file.filename)
 
-    if mime_type not in ["image/png", "image/jpeg", "image/jpg"]:
-        return {"error": f"Unsupported File type: {mime_type}"}
+    # read given file 
+    file_data = await file.read()
     
-    # if empty 
+    # validate : if empty 
     if not file : 
-        return {"error" : "No files were uploaded"}
-    
-    # validate file size 
-    fileSize = len (await file.read())
-    
-    if fileSize > MAX_FILE_SIZE:
         raise HTTPException(
             status_code= 400,
-            detail=f"File size exceeds the limit of {MAX_FILE_SIZE // (1024 * 1024)} MB. Max file size is 16 MB",
+            detail=f"No files were uploaded.",
+        )
+    
+    # validate :  file size 
+    if len(file_data) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File size exceeds the limit of {MAX_FILE_SIZE // (1024 * 1024)} MB.",
         )
     
     # process the image
     try : 
-        usrImage = Image.open(file.file)
-        outImage = remove(usrImage, alpha_matting=True)
+        usrImage = Image.open(BytesIO(file_data))
+        outImage = remove(usrImage)
         
-        # enhance 
-       # outImage = outImage.filter(ImageFilter.EDGE_ENHANCE)
-        
-        
-        # Save image 
+        # save image 
         imageIo = BytesIO()
-        outImage = outImage.convert("RGBA")  # Ensure it's in RGBA format (if it's not)
         outImage.save(imageIo, "PNG")
         imageIo.seek(0)
         

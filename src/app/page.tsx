@@ -2,16 +2,30 @@
 
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
-import Image from "next/image";
 
 export default function Home() {
-  const [file, setFile] = useState<File>();
-  const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState<File>();                                // store file
+  const [originalFileName, setOriginalFileName] = useState<string>("");    // store original file name
+  const [loading, setLoading] = useState(false);                           // loading state of images
+  const [errorMessage, setErrorMessage] = useState<string>("");            // store error message
 
-  const onDrop = (acceptedFiles: File[]) => {
+  // accepted file types for now
+  const acceptedFormats = [".jpg", ".jpeg", ".png"];
+
+  const onDrop = (acceptedFiles: File[], rejectedFiles: any) => {
+    // clear any previous error messages
+    setErrorMessage("");
+
+    if (rejectedFiles.length > 0) {
+      setErrorMessage("Invalid file type. Please upload a .jpg, .jpeg, or .png image.");
+      return;
+    }
+
     if (acceptedFiles.length > 0) {
-      setFile(acceptedFiles[0]);
-      uploadFile(acceptedFiles[0]);
+      const newFile = acceptedFiles[0];
+      setFile(newFile);
+      setOriginalFileName(newFile.name);
+      uploadFile(newFile);
     }
   };
 
@@ -21,7 +35,7 @@ export default function Home() {
     const formData = new FormData();
     formData.append("file", file);
 
-    // Upload file to API
+    // upload file to API to rem bg
     try {
       const response = await fetch("http://localhost:8000/upload", {
         method: "POST",
@@ -36,14 +50,16 @@ export default function Home() {
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
+      const newFileName = file.name.replace(/\.[^/.]+$/, ""); // new image name
+
       link.href = url;
-      link.download = "_nobg.png";
+      link.download = newFileName + "_nobg.png";
       link.click();
 
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error uploading file:", error);
-      alert("Failed to process the image. Please try again later.");
+      alert("NoBackdrop is at capacity right now. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -52,7 +68,10 @@ export default function Home() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".jpg", ".jpeg", ".png"],
+      "image/*": acceptedFormats,
+    },
+    onDropRejected: () => {
+      setErrorMessage("Invalid file type. Please upload a .jpg, .jpeg, or .png image.");
     },
   });
 
@@ -84,8 +103,11 @@ export default function Home() {
           )}
         </div>
 
+        {/* Error Message */}
+        {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
+
         {/* Loading Indicator */}
-        {loading && <p className="mt-4 text-gray-600">Processing your image...</p>}
+        {loading && <p className="mt-4 text-gray-600">Processing your image... {originalFileName}</p>}
       </div>
     </div>
   );
