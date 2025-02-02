@@ -36,14 +36,14 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ env.DOCKER_IMAGE_URL }}:latest -f backend/Dockerfile backend
-          docker push ${{ env.DOCKER_IMAGE_URL }}:latest
+          docker build -t ${{ env.DOCKER_IMAGE_URL }}:nobgtag -f backend/Dockerfile backend
+          docker push ${{ env.DOCKER_IMAGE_URL }}:nobgtag
 
       - name: Deploy to Cloud Run
         run: |
           echo SERVICE_NAME $SERVICE_NAME
           gcloud run deploy $SERVICE_NAME \
-            --image ${{ env.DOCKER_IMAGE_URL }}:latest \
+            --image ${{ env.DOCKER_IMAGE_URL }}:nobgtag \
             --platform managed \
             --region us-east1 \
             --allow-unauthenticated
