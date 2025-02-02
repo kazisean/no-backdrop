@@ -5,8 +5,6 @@ from io import BytesIO
 from rembg import remove
 from PIL import Image
 
-
-
 MAX_FILE_SIZE =  16 * 1024 * 1024  # 16 MB Image Size Limit
 
 # init App
