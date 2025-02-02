@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 export default function Home() {
+  // FIX LATER
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [file, setFile] = useState<File>();                                // store file
   const [originalFileName, setOriginalFileName] = useState<string>("");    // store original file name
   const [loading, setLoading] = useState(false);                           // loading state of images
@@ -12,6 +14,9 @@ export default function Home() {
   // accepted file types for now
   const acceptedFormats = [".jpg", ".jpeg", ".png"];
 
+  // FIX LATER
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onDrop = (acceptedFiles: File[], rejectedFiles: any) => {
     // clear any previous error messages
     setErrorMessage("");
@@ -37,7 +42,7 @@ export default function Home() {
 
     // upload file to API to rem bg
     try {
-      const response = await fetch("http://localhost:8000/upload", {
+      const response = await fetch("https://nobgimg-635877621307.us-central1.run.app/", {
         method: "POST",
         body: formData,
         mode: "cors",
