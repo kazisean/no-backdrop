@@ -42,7 +42,7 @@ export default function Home() {
 
     // upload file to API to rem bg
     try {
-      const response = await fetch("https://nobgimg-635877621307.us-central1.run.app/", {
+      const response = await fetch("https://nobgimg-635877621307.us-central1.run.app/upload", {
         method: "POST",
         body: formData,
         mode: "cors",

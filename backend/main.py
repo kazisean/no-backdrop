@@ -12,21 +12,18 @@ MAX_FILE_SIZE =  16 * 1024 * 1024  # 16 MB Image Size Limit
 # init App
 app = FastAPI()
 
-# CORS Origins 
+# Allowed CORS Origins 
 origins = [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:4173",
-    "http://localhost:4174",
-    "http://localhost:3000"
+    "https://no-backdrop-h7sk-kaziseans-projects.vercel.app",
+    "https://no.hossain.cc"
 ]
 
 # Add CORSMiddleware to allow CORS requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
+    allow_origins=origins,  # Allow all origins
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+    allow_methods=["POST"],  # Allow all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
 )
 
