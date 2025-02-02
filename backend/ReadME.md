@@ -7,6 +7,7 @@
 
 
 Test Cases : 
+[x] push to test prod
 [] implement pytest
 [] check status 200 with /doc message
 [] check no files uploaded 
