@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <img src="/doc/no-bg-banner.png" alt="No Backdrop - AI Background Removal" width="100%"/>
+</p>
 
-## Getting Started
 
-First, run the development server:
+# No Backdrop
+
+#### [Demo](https://no.hossain.cc/) &nbsp; · &nbsp; [Report a bug](https://github.com/kazisean/no-backdrop/issues/new) &nbsp; · &nbsp; [Installation](#Installation)
+
+> Remove background from images within seconds powered by AI. Process thousands of images with speed, accuracy, and reliability.
+
+[![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js-000000?style=flat-square&logo=Next.js&logoColor=white)](https://nextjs.org) [![API: FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com) [![Model: u2net](https://img.shields.io/badge/Model-u2net-blue?style=flat-square)](https://github.com/xuebinqin/U-2-Net) [![Uptime: 99.9%](https://img.shields.io/badge/Uptime-99.9%25-brightgreen?style=flat-square)](https://no-backdrop.yourdomain.com/status)
+
+
+### Key Features
+
+- **Instant Background Removal**: Remove backgrounds in seconds.
+- **Batch Processing**: Handle multiple images simultaneously.
+- **High Throughput**: Process thousands of images without performance degradation
+- **Libre Pricing**: Free for now! Feel free to self-host it!
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/no-backdrop.git
+cd no-backdrop
+
+# Install dependencies
+npm install
+
+# Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [Next.js](https://nextjs.org/) - Frontend
+- [FastAPI](https://fastapi.tiangolo.com/) - Backend API
+- [Rembg Library](https://github.com/danielgatis/rembg) - Backend library to remove image background
+- [u2net](https://github.com/xuebinqin/U-2-Net) - State-of-the-art deep learning model for salient object detection
+- [Vercel](https://vercel.com/) - Frontend hosting and serverless functions
+- [CloudFuntion](https://cloud.google.com/functions) - For backend hosting
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
