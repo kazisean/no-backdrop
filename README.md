@@ -23,7 +23,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/no-backdrop.git
+git clone https://github.com/kazisean/no-backdrop.git
 cd no-backdrop
 
 # Install dependencies
