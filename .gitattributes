@@ -1,0 +1,5 @@
+# Ignore all files that might be misclassified
+*.roff linguist-detectable=false
+
+# Specify the primary language of your project
+* linguist-language=TypeScript
