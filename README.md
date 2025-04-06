@@ -2,10 +2,9 @@
   <img src="/doc/no-bg-banner.png" alt="No Backdrop - AI Background Removal" width="100%"/>
 </p>
 
-
-# No Backdrop
 #### [Demo](https://no.hossain.cc/) &nbsp; · &nbsp; [Report a bug](https://github.com/kazisean/no-backdrop/issues/new) &nbsp; · &nbsp; [Installation](#Installation)
 
+# No Backdrop
 > Remove background from images within seconds powered by AI. Process thousands of images with speed, accuracy, and reliability.
 
 [![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js-000000?style=flat-square&logo=Next.js&logoColor=white)](https://nextjs.org) [![API: FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com) [![Model: u2net](https://img.shields.io/badge/Model-u2net-blue?style=flat-square)](https://github.com/xuebinqin/U-2-Net) [![Uptime: 99.9%](https://img.shields.io/badge/Uptime-99.9%25-brightgreen?style=flat-square)](https://no-backdrop.yourdomain.com/status)
