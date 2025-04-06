@@ -1,5 +1,7 @@
 <p align="center">
-  <img src="/doc/no-bg-banner.png" alt="No Backdrop - AI Background Removal" width="100%"/>
+  <a href="https://no.hossain.cc/" target="_blank">
+    <img src="/doc/no-bg-banner.png" alt="No Backdrop - AI Background Removal" width="100%"/>
+  </a>
 </p>
 
 #### [Demo](https://no.hossain.cc/) &nbsp; · &nbsp; [Report a bug](https://github.com/kazisean/no-backdrop/issues/new) &nbsp; · &nbsp; [Installation](#Installation)
