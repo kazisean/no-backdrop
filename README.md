@@ -42,6 +42,16 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 - [Vercel](https://vercel.com/) - Frontend hosting and serverless functions
 - [CloudFuntion](https://cloud.google.com/functions) - For backend hosting
 
+## 🤝 Contributing
+We welcome contributions from the open-source community. Whether it is a typo or an implementation mistake, your contribution is valuable to us. Please follow these steps:
+
+1. Create an issue describing the problem or enhancement
+2. Wait for issue assignment by maintainers
+3. Fork the repository and create a branch for your changes
+4. Make your changes and submit a pull request
+5. Reference the original issue in your pull request
+6. No contribution is too small - we appreciate everything from documentation improvements to major feature additions!
+
 ## License
 
 MIT
