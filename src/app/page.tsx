@@ -1,23 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, FileRejection } from "react-dropzone";
 
 export default function Home() {
-  // FIX LATER
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [file, setFile] = useState<File>();                                // store file
-  const [originalFileName, setOriginalFileName] = useState<string>("");    // store original file name
-  const [loading, setLoading] = useState(false);                           // loading state of images
+  const [originalFileName, setOriginalFileName] = useState<string>("");    // original file name
+  const [loading, setLoading] = useState(false);                           // loading state
   const [errorMessage, setErrorMessage] = useState<string>("");            // store error message
 
   // accepted file types for now
   const acceptedFormats = [".jpg", ".jpeg", ".png"];
 
-  // FIX LATER
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onDrop = (acceptedFiles: File[], rejectedFiles: any) => {
+  const onDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     // clear any previous error messages
     setErrorMessage("");
 
@@ -28,7 +22,6 @@ export default function Home() {
 
     if (acceptedFiles.length > 0) {
       const newFile = acceptedFiles[0];
-      setFile(newFile);
       setOriginalFileName(newFile.name);
       uploadFile(newFile);
     }
@@ -42,7 +35,7 @@ export default function Home() {
 
     // upload file to API to rem bg
     try {
-      const response = await fetch("https://nobgimg-635877621307.us-east4.run.app/upload", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
         method: "POST",
         body: formData,
         mode: "cors",
@@ -64,7 +57,7 @@ export default function Home() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error uploading file:", error);
-      alert("NoBackdrop is at capacity right now. Please try again later.");
+      setErrorMessage("NoBackdrop is at capacity right now. Please try again later.");
     } finally {
       setLoading(false);
     }
