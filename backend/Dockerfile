@@ -1,9 +1,7 @@
 FROM python:3.9
 
-# Install wget to download u2net model
+# Install u2net model
 RUN apt-get update && apt-get install -y wget
-
-# Download the u2net.onnx file from the URL
 RUN mkdir -p /home/.u2net
 RUN wget -O /home/.u2net/u2net.onnx https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx
 
