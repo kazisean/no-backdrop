@@ -11,14 +11,6 @@
 
 [![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js-000000?style=flat-square&logo=Next.js&logoColor=white)](https://nextjs.org) [![API: FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com) [![Model: u2net](https://img.shields.io/badge/Model-u2net-blue?style=flat-square)](https://github.com/xuebinqin/U-2-Net) [![Uptime: 99.9%](https://img.shields.io/badge/Uptime-99.9%25-brightgreen?style=flat-square)](https://no-backdrop.yourdomain.com/status)
 
-
-### Key Features
-
-- **Instant Background Removal**: Remove backgrounds in seconds.
-- **Batch Processing**: Handle multiple images simultaneously.
-- **High Throughput**: Process thousands of images without performance degradation
-- **Libre Pricing**: Free for now! Feel free to self-host it!
-
 ### Installation
 
 ```bash
