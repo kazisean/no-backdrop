@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface LoadingIndicatorProps {
   fileName: string;
@@ -6,9 +6,7 @@ interface LoadingIndicatorProps {
 
 const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ fileName }) => {
   return (
-    <p className="mt-4 text-gray-600">
-      Processing your image... {fileName}
-    </p>
+    <p className="mt-4 text-gray-600">Processing your image... {fileName}</p>
   );
 };
 
