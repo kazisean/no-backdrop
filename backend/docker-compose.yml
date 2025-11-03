@@ -1,0 +1,39 @@
+version: "3.8"
+
+services: 
+  # 1. start the redis server
+  redis:
+    image: "redis:7.0-alpine"
+    restart: always
+    healthcheck: 
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+  
+  # 2. start the web app
+  web: 
+    build: .
+    restart: always
+    ports:
+      - "80:8080"
+    environment: 
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+  
+  # 3. celery worker setup
+  worker:
+    build: .
+    restart: always
+
+    command: celery -A celery_worker.celery worker --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+

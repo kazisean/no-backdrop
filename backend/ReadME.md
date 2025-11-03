@@ -1,1 +1,1 @@
-RemoveBG backend hosted in a AWS Farget container
+RemoveBG backend hosted in a AWS EC2 instance

@@ -3,13 +3,11 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from io import BytesIO
-from rembg import remove
-from PIL import Image
+import base64
 
 MAX_FILE_SIZE =  16 * 1024 * 1024  # 16 MB Image Size Limit
 MAX_IMAGE_PIXELS = 20 * 1000 * 1000 # 20 megapixels
 
-# init App
 app = FastAPI()
 
 # Allowed CORS Origins 
@@ -17,14 +15,12 @@ origins = [
     "https://no-backdrop-h7sk-kaziseans-projects.vercel.app",
     "https://no.hossain.cc"
 ]
-
-# Add CORSMiddleware to allow CORS requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["POST"], 
-    allow_headers=["*"],  # Allow all headers
+    allow_headers=["*"],  
 )
 
 # Home Page info
@@ -65,7 +61,7 @@ async def uploadFile(request: Request, file : UploadFile = File(...)):
 
         outImage = remove(usrImage)
         
-        # save image 
+        # send back image
         imageIo = BytesIO()
         outImage.save(imageIo, "PNG")
         imageIo.seek(0)
