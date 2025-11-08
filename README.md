@@ -35,6 +35,8 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 - [u2net](https://github.com/xuebinqin/U-2-Net) - State-of-the-art deep learning model for salient object detection
 - [Vercel](https://vercel.com/) - Frontend hosting and serverless functions
 - [AWS EC2](https://docs.aws.amazon.com/ec2/) - For backend hosting
+- [Celery](https://docs.celeryq.dev/en/stable/) - Asynchronous task queue/job queue
+- [Redis](https://redis.io/docs/latest/) - In-memory data store used as a message broker
 
 ## Contributing
 We welcome contributions from the open-source community. Whether it is a typo or an implementation mistake, your contribution is valuable to us. Please follow these steps:
