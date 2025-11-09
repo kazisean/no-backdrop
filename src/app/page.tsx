@@ -85,7 +85,6 @@ export default function Home() {
         {
           method: "POST",
           body: formData,
-          mode: "cors",
         }
       );
 
