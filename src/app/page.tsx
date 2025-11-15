@@ -16,7 +16,7 @@ export default function Home() {
   const pollJobStatus = useCallback(async (jobId: string, fileName: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/status${jobId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/status/${jobId}`
       );
 
       if (!response.ok) {

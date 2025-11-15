@@ -7,7 +7,7 @@ from rembg import remove
 from celery import Celery
 from PIL import Image
 
-# get redis urls from enviroment variables, with defaults
+# TODO: later get redis urls from enviroment variables, with defaults
 broker_url = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379/0")
 result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
 
@@ -15,14 +15,14 @@ result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
 MAX_IMAGE_PIXELS = 20 * 1000 * 1000 # 20 megapixels
 
 
-# celery configuration 
-celery_app = Celery (
+# celery config
+app = Celery (
     'worker',
     broker = broker_url,
     backend = result_backend
 )
 
-celery_app.conf.update (
+app.conf.update (
     task_serializer = 'json',
     accept_content = ['json'],
     result_serializer = 'json',
@@ -34,7 +34,7 @@ celery_app.conf.update (
     task_soft_limit = 240 # 4 minutes
 )
 
-@celery_app.task(name="create_process_image_task")
+@app.task(name="create_process_image_task")
 def process_image_task(image_data_bytes):
     """
     Celery task to remove background from an image

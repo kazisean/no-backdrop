@@ -14,10 +14,12 @@ MAX_FILE_SIZE =  16 * 1024 * 1024  # 16 MB Image Size Limit
 
 app = FastAPI()
 
-# Allowed CORS Origins 
+# allowed CORS origins 
 origins = [
     "https://no-backdrop-h7sk-kaziseans-projects.vercel.app",
-    "https://no.hossain.cc"
+    "https://no.hossain.cc",
+    "http://localhost",
+    "http://localhost:3000"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -27,13 +29,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Home Page info
+# home info
 @app.get("/")
 async def root():
     return {"message": "Please See /docs for more info"}
 
 
-@app.post("/upload", status_code= HTTP._202_ACCEPTED)
+@app.post("/upload", status_code=status.HTTP_202_ACCEPTED)
 async def uploadFile(request: Request, file : UploadFile = File(...)):
 
     # validate : file type
@@ -66,7 +68,7 @@ async def uploadFile(request: Request, file : UploadFile = File(...)):
             detail="An error occurred while queuing the image for processing."
         )
 
-@app.get("/status{job_id}")
+@app.get("/status/{job_id}")
 async def get_status(job_id: str):
     """
     status for a job
@@ -97,7 +99,7 @@ async def get_status(job_id: str):
             
             return StreamingResponse(
                 imageIO, 
-                media_type="type/png",
+                media_type="image/png",
                 headers = {
                     "Content-Disposition": f"attachment; filename=result_{job_id}_nobg.png"
                     }

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services: 
   # 1. start the redis server
   redis:
@@ -29,7 +27,7 @@ services:
     build: .
     restart: always
 
-    command: celery -A celery_worker.celery worker --loglevel=info
+    command: /app/start_worker.sh
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
