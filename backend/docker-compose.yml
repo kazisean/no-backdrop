@@ -21,20 +21,34 @@ services:
   web:
     build: .
     restart: always
+    command: >
+      uvicorn main:app
+      --host 0.0.0.0
+      --port 8080
+      --workers 1
+      --loop uvloop
+      --no-access-log
     ports:
       - "80:8080"
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
     depends_on:
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 512M
         reservations:
-          memory: 150M
+          memory: 256M
   
   # 3. celery worker setup
   worker:
