@@ -21,7 +21,7 @@ const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ fileName, status })
   };
 
   return (
-    <div className="mt-4 text-gray-600">
+    <div className="text-gray-600">
       <p>{getStatusMessage()}</p>
     </div>
   )
