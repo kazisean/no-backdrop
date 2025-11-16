@@ -26,12 +26,18 @@ services:
   worker:
     build: .
     restart: always
-
     command: /app/start_worker.sh
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
     depends_on:
       redis:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 2G  # limit worker memory to 2GB
+        reservations:
+          memory: 512M  # reserve 512MB minimum
 

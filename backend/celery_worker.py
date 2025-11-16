@@ -29,13 +29,19 @@ celery_app.conf.update (
     timezone = 'UTC',
     enable_utc = True,
 
-    # timeout for task 
-    task_time_limit = 300, # 5 minutes
-    task_soft_limit = 240 # 4 minutes
+    # timeout for task
+    task_time_limit = 300,  # 5 minutes
+    task_soft_time_limit = 240,  # 4 minutes
+    
+    # memory and performance optimizations
+    worker_max_tasks_per_child = 10,  # restart worker after 10 tasks
+    worker_prefetch_multiplier = 2,  # fetch 2 tasks per worker for better async throughput
+    task_acks_late = True,  # acknowledge tasks after completion
+    worker_pool_restarts = True,  # enable worker pool restarts
 )
 
-@celery_app.task(name="create_process_image_task")
-def process_image_task(image_data_bytes):
+@celery_app.task(name="create_process_image_task", bind=True)
+def process_image_task(self, image_data_bytes):
     """
     Celery task to remove background from an image
     Receives the image as bytes, returns processed image as a base64 string
@@ -52,17 +58,29 @@ def process_image_task(image_data_bytes):
         if usrImage.width * usrImage.height > MAX_IMAGE_PIXELS:
             raise ValueError(f"Image resolution exceeds the limit of {MAX_IMAGE_PIXELS // 1000000} megapixels.")
 
-        # process the image 
+        # process the image
         outImage = remove(usrImage)
+        
+        # Clear original image from memory
+        usrImage.close()
+        del usrImage
 
         # save process image as bytes in memory as bytes
         imageIo = BytesIO()
         outImage.save(imageIo, "PNG")
         imageIo.seek(0)
+        
+        # Clear processed image from memory
+        outImage.close()
+        del outImage
 
         # encode as base64 and store in redis
         image_bytes = imageIo.getvalue()
         base64_string = base64.b64encode(image_bytes).decode('utf-8')
+        
+        # Clear image bytes from memory
+        imageIo.close()
+        del imageIo
 
         return base64_string
 

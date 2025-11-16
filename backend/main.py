@@ -9,7 +9,7 @@ import base64
 from celery_worker import celery_app, process_image_task
 from celery.result import AsyncResult
 
-MAX_FILE_SIZE =  16 * 1024 * 1024  # 16 MB Image Size Limit
+MAX_FILE_SIZE =  10 * 1024 * 1024  # 10 MB Image Size Limit
 
 
 app = FastAPI()
@@ -46,7 +46,7 @@ async def uploadFile(request: Request, file : UploadFile = File(...)):
             detail="Invalid file type. Please upload a PNG or JPEG image.",
         )
 
-    # Read file in chunks to prevent memory issues
+    # read file in chunks to prevent memory issues
     file_data = await file.read()
     
     # validate :  file size
@@ -54,6 +54,19 @@ async def uploadFile(request: Request, file : UploadFile = File(...)):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"File size exceeds the limit of {MAX_FILE_SIZE // (1024 * 1024)} MB.",
+        )
+    
+    # additional validation: check if file is an image for real
+    try:
+        from PIL import Image
+        from io import BytesIO
+        test_image = Image.open(BytesIO(file_data))
+        test_image.close()
+        del test_image
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid image file. Please upload a valid PNG or JPEG image.",
         )
     
     try :
@@ -99,8 +112,12 @@ async def get_status(job_id: str):
             imageIO = BytesIO(image_bytes)
             imageIO.seek(0)
             
+            # Clean up the task result from Redis after retrieving the data
+            # This removes the processed image from Redis memory immediately
+            task_result.forget()
+            
             return StreamingResponse(
-                imageIO, 
+                imageIO,
                 media_type="image/png",
                 headers = {
                     "Content-Disposition": f"attachment; filename=result_{job_id}_nobg.png"
@@ -111,7 +128,7 @@ async def get_status(job_id: str):
             return JSONResponse(
                 status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content = {
-                    "status": "error", 
+                    "status": "error",
                     "message": "Failed to decode or serve the processed image."
                     }
             )
