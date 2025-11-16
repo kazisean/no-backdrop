@@ -41,11 +41,14 @@ celery_app.conf.update (
     task_time_limit = 300,  # 5 minutes
     task_soft_time_limit = 240,  # 4 minutes
     
-    # memory and performance optimizations
+    # memory and performance optimizations for t3.small
     worker_max_tasks_per_child = 10,  # restart worker after 10 tasks
-    worker_prefetch_multiplier = 2,  # fetch 2 tasks per worker for better async throughput
+    worker_prefetch_multiplier = 1,  # fetch 1 task at a time for now due to small serger
     task_acks_late = True,  # acknowledge tasks after completion
     worker_pool_restarts = True,  # enable worker pool restarts
+    
+    # auto expire results after 1 hour to prevent memory leaks
+    result_expires = 3600,
 )
 
 @celery_app.task(name="create_process_image_task", bind=True)
