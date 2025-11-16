@@ -37,7 +37,6 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G  # limit worker memory to 2GB
+          memory: 7G
         reservations:
-          memory: 512M  # reserve 512MB minimum
-
+          memory: 1G 

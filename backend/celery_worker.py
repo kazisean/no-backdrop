@@ -3,7 +3,7 @@ import logging
 import base64
 
 from io import BytesIO
-from rembg import remove
+from rembg import remove, new_session
 from celery import Celery
 from PIL import Image
 
@@ -13,6 +13,14 @@ result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
 
 # max image size for now
 MAX_IMAGE_PIXELS = 20 * 1000 * 1000 # 20 megapixels
+
+# load the model ONCE at module level shared by all workers
+try:
+    MODEL_SESSION = new_session()
+    logging.info("Background removal model loaded successfully")
+except Exception as e:
+    logging.error(f"Failed to load background removal model: {e}")
+    raise
 
 
 # celery config
@@ -58,8 +66,8 @@ def process_image_task(self, image_data_bytes):
         if usrImage.width * usrImage.height > MAX_IMAGE_PIXELS:
             raise ValueError(f"Image resolution exceeds the limit of {MAX_IMAGE_PIXELS // 1000000} megapixels.")
 
-        # process the image
-        outImage = remove(usrImage)
+        # process the image using the shared model session
+        outImage = remove(usrImage, session=MODEL_SESSION)
         
         # Clear original image from memory
         usrImage.close()
