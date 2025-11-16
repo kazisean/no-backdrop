@@ -8,10 +8,8 @@ import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 
 export default function Home() {
-  const [originalFileName, setOriginalFileName] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+  const [processingFiles, setProcessingFiles] = useState<Map<string, { fileName: string; status: string }>>(new Map());
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [pollingStatus, setPollingStatus] = useState<string>("");
 
   const pollJobStatus = useCallback(async (jobId: string, fileName: string) => {
     try {
@@ -35,23 +33,34 @@ export default function Home() {
         link.click();
         window.URL.revokeObjectURL(url);
         
-        setLoading(false);
-        setPollingStatus("");
+        // Remove from processing files
+        setProcessingFiles(prev => {
+          const updated = new Map(prev);
+          updated.delete(jobId);
+          return updated;
+        });
         return;
       }
 
       const data = await response.json();
       if (data.status === "processing" || data.status === "pending") {
-        setPollingStatus(data.status);
+        setProcessingFiles(prev => {
+          const updated = new Map(prev);
+          updated.set(jobId, { fileName, status: data.status });
+          return updated;
+        });
         setTimeout(() => pollJobStatus(jobId, fileName), 2000);
       } else {
         throw new Error(data.message || "An unknown error occurred.");
       }
     } catch (error) {
       console.error("Error polling job status:", error);
-      setErrorMessage("Image processing failed. Please try again.");
-      setLoading(false);
-      setPollingStatus("");
+      setErrorMessage(`Processing failed for ${fileName}. Please try again.`);
+      setProcessingFiles(prev => {
+        const updated = new Map(prev);
+        updated.delete(jobId);
+        return updated;
+      });
     }
   }, []);
 
@@ -66,15 +75,18 @@ export default function Home() {
     }
 
     if (acceptedFiles.length > 0) {
-      const newFile = acceptedFiles[0];
-      setOriginalFileName(newFile.name);
-      uploadFile(newFile);
+      // Process all accepted files
+      acceptedFiles.forEach(file => uploadFile(file));
     }
   };
 
   const uploadFile = async (file: File) => {
-    setLoading(true);
-    setPollingStatus("uploading")
+    const tempJobId = `uploading_${Date.now()}_${Math.random()}`;
+    setProcessingFiles(prev => {
+      const updated = new Map(prev);
+      updated.set(tempJobId, { fileName: file.name, status: "uploading" });
+      return updated;
+    });
 
     const formData = new FormData();
     formData.append("file", file);
@@ -93,14 +105,26 @@ export default function Home() {
       }
 
       const data = await response.json();
+      
+      // Remove temp upload status and start polling
+      setProcessingFiles(prev => {
+        const updated = new Map(prev);
+        updated.delete(tempJobId);
+        return updated;
+      });
+      
       pollJobStatus(data.job_id, file.name);
 
     } catch (error) {
       console.error("Error uploading file:", error);
       setErrorMessage(
-        "NoBackdrop is at capacity right now. Please try again later."
+        `Upload failed for ${file.name}. Please try again.`
       );
-      setLoading(false);
+      setProcessingFiles(prev => {
+        const updated = new Map(prev);
+        updated.delete(tempJobId);
+        return updated;
+      });
     }
   };
 
@@ -111,7 +135,13 @@ export default function Home() {
         <Header />
         <Dropzone onDrop={onDrop} />
         {errorMessage && <ErrorMessage message={errorMessage} />}
-        {loading && <LoadingIndicator fileName={originalFileName} status={pollingStatus}/>}
+        {processingFiles.size > 0 && (
+          <div className="mt-4 space-y-2">
+            {Array.from(processingFiles.values()).map((file, index) => (
+              <LoadingIndicator key={index} fileName={file.fileName} status={file.status} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

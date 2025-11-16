@@ -11,6 +11,7 @@ const Dropzone: React.FC<DropzoneProps> = ({ onDrop }) => {
     accept: {
       "image/*": [".jpeg", ".jpg", ".png"],
     },
+    multiple: true,
   });
 
   return (
@@ -27,7 +28,7 @@ const Dropzone: React.FC<DropzoneProps> = ({ onDrop }) => {
         </p>
       ) : (
         <p className="text-gray-600 text-sm sm:text-base">
-          Drag & drop an image here, or click to select one
+          Drag & drop image(s) here, or click to select
         </p>
       )}
     </div>
