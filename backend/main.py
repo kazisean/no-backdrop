@@ -26,14 +26,21 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "OPTIONS", "HEAD"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,
 )
 
 # home info
 @app.get("/")
 async def root():
     return {"message": "Please See /docs for more info"}
+
+# health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "fastapi-backdrop"}
 
 
 @app.post("/upload", status_code=status.HTTP_202_ACCEPTED)

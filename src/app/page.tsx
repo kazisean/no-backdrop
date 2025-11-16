@@ -92,16 +92,26 @@ export default function Home() {
     formData.append("file", file);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/upload`,
         {
           method: "POST",
           body: formData,
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json',
+          },
         }
       );
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error(await response.text());
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
@@ -117,9 +127,21 @@ export default function Home() {
 
     } catch (error) {
       console.error("Error uploading file:", error);
-      setErrorMessage(
-        `Upload failed for ${file.name}. Please try again.`
-      );
+      let errorMsg = `Upload failed for ${file.name}. `;
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMsg += 'Request timed out. Please try again.';
+        } else if (error.message.includes('Failed to fetch')) {
+          errorMsg += 'Network error. Please check your connection and try again.';
+        } else {
+          errorMsg += error.message;
+        }
+      } else {
+        errorMsg += 'Please try again.';
+      }
+      
+      setErrorMessage(errorMsg);
       setProcessingFiles(prev => {
         const updated = new Map(prev);
         updated.delete(tempJobId);

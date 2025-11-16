@@ -2,8 +2,8 @@
 cd /app
 exec celery -A celery_worker worker \
     --loglevel=info \
-    --pool=prefork \
-    --concurrency=2 \
-    --max-memory-per-child=1048576 \
+    --pool=solo \
+    --max-memory-per-child=524288 \
     --without-gossip \
-    --without-mingle
+    --without-mingle \
+    --without-heartbeat
