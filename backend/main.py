@@ -14,10 +14,11 @@ MAX_FILE_SIZE =  16 * 1024 * 1024  # 16 MB Image Size Limit
 
 app = FastAPI()
 
-# allowed CORS origins 
+# allowed CORS origins
 origins = [
     "https://no-backdrop-h7sk-kaziseans-projects.vercel.app",
     "https://no.hossain.cc",
+    "https://nobackend.hossain.cc",
     "http://localhost",
     "http://localhost:3000"
 ]
@@ -45,6 +46,7 @@ async def uploadFile(request: Request, file : UploadFile = File(...)):
             detail="Invalid file type. Please upload a PNG or JPEG image.",
         )
 
+    # Read file in chunks to prevent memory issues
     file_data = await file.read()
     
     # validate :  file size
@@ -54,8 +56,8 @@ async def uploadFile(request: Request, file : UploadFile = File(...)):
             detail=f"File size exceeds the limit of {MAX_FILE_SIZE // (1024 * 1024)} MB.",
         )
     
-    try : 
-        # pass the raw bytes of the file to 
+    try :
+        # pass the raw bytes of the file to
         # the Celery worker
         task = process_image_task.delay(file_data)
 
