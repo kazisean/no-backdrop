@@ -1,0 +1,29 @@
+FROM python:3.9-slim
+
+# install curl for health checks
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
+# create a non-root user and group
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+
+# set app work directory
+WORKDIR /app
+
+# copy the web requirements file and install dependencies
+COPY requirements.web.txt .
+RUN pip install --no-cache-dir -r requirements.web.txt
+
+# copy only the necessary files for the web service
+COPY app/ app/
+
+# ownership to our new user
+RUN chown -R appuser:appgroup /app
+
+# switch to the new non-root user
+USER appuser
+
+# port 
+EXPOSE 8080
+
+# Start the application
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]

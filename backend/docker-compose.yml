@@ -19,14 +19,15 @@ services:
   
   # 2. start the web app
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.web
     restart: always
     command: >
-      uvicorn main:app
+      uvicorn app.main:app
       --host 0.0.0.0
       --port 8080
       --workers 1
-      --loop uvloop
       --no-access-log
     ports:
       - "80:8080"
@@ -52,7 +53,9 @@ services:
   
   # 3. celery worker setup
   worker:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
     restart: always
     command: /app/start_worker.sh
     environment:

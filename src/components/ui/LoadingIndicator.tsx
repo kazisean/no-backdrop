@@ -12,7 +12,7 @@ const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ fileName, status })
       case "uploading":
         return `Uploading ${fileName}...`;
       case "pending":
-        return "Your image is in the queue...";
+        return `Your image ${fileName.length > 5 ? fileName.substring(0, 5) + "..." : fileName} is in the queue...`;
       case "processing":
         return `Processing ${fileName}...`;
       default:

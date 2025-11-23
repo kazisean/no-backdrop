@@ -1,0 +1,5 @@
+celery==5.4.0
+redis==5.2.1
+rembg==2.0.61
+onnxruntime==1.19.2
+pillow==11.1.0

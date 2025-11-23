@@ -1,0 +1,34 @@
+FROM python:3.9-slim
+
+# install curl for health checks
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
+# create a non-root user and group
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+
+# set app work directory
+WORKDIR /app
+
+# copy the worker requirements file and install dependencies
+COPY requirements.worker.txt .
+RUN pip install --no-cache-dir -r requirements.worker.txt
+
+# create and download model
+RUN mkdir -p /home/appuser/.u2net
+ADD https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx /home/appuser/.u2net/u2net.onnx
+
+# copy only the necessary files for the worker service
+COPY app/ app/
+COPY start_worker.sh .
+
+# make the worker script executable
+RUN chmod +x /app/start_worker.sh
+
+# ownership to our new user
+RUN chown -R appuser:appgroup /app /home/appuser
+
+# switch to the new non-root user
+USER appuser
+
+# Start the worker
+CMD ["/app/start_worker.sh"]
