@@ -3,19 +3,13 @@ services:
   redis:
     image: "redis:7.0-alpine"
     restart: always
-    command: redis-server --maxmemory 128mb --maxmemory-policy volatile-lru --save "" --appendonly no
+    command: redis-server --maxmemory-policy volatile-lru --save "" --appendonly no
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
       start_period: 10s
-    deploy:
-      resources:
-        limits:
-          memory: 150M
-        reservations:
-          memory: 64M
   
   # 2. start the web app
   web:
@@ -44,12 +38,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          memory: 256M
   
   # 3. celery worker setup
   worker:
@@ -62,18 +50,6 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - PYTHONUNBUFFERED=1
-      - OMP_NUM_THREADS=1
-      - OPENBLAS_NUM_THREADS=1
-      - MKL_NUM_THREADS=1
-      - VECLIB_MAXIMUM_THREADS=1
-      - NUMEXPR_NUM_THREADS=1
-      - CELERY_WORKER_CONCURRENCY=1
     depends_on:
       redis:
         condition: service_healthy
-    deploy:
-      resources:
-        limits:
-          memory: 700M
-        reservations:
-          memory: 256M
