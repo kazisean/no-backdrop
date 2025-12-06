@@ -4,7 +4,7 @@
   </a>
 </p>
 
-#### [Demo Video](https://hossain.cc/no-demo) &nbsp; · &nbsp; [Report a bug](https://github.com/kazisean/no-backdrop/issues/new) &nbsp; · &nbsp; [Installation](#Installation)
+#### [Report a bug](https://github.com/kazisean/no-backdrop/issues/new) &nbsp; · &nbsp; [Installation](#Installation)
 
 # No Backdrop
 > Remove background from images within seconds powered by AI. Process thousands of images with speed, accuracy, and reliability.
