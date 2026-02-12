@@ -1,8 +1,10 @@
 services:
-  # 1. start the redis server
+  # start the redis server
   redis:
     image: "redis:7.0-alpine"
     restart: always
+    mem_limit: 256m
+    memswap_limit: 256m
     command: redis-server --maxmemory-policy volatile-lru --save "" --appendonly no
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -11,20 +13,23 @@ services:
       retries: 5
       start_period: 10s
   
-  # 2. start the web app
+  # start the web app
   web:
     build:
       context: .
       dockerfile: Dockerfile.web
     restart: always
+    mem_limit: 512m
+    cpus: '0.5'
     command: >
       uvicorn app.main:app
       --host 0.0.0.0
       --port 8080
       --workers 1
+      --proxy-headers
+      --forwarded-allow-ips="*"
       --no-access-log
-    ports:
-      - "80:8080"
+    # ports: - "80:8080" only cloudflare tunnel needs access to this docker network
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -32,19 +37,22 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
   
-  # 3. celery worker setup
+  # celery worker setup
   worker:
     build:
       context: .
       dockerfile: Dockerfile.worker
     restart: always
+    mem_limit: 1800m
+    memswap_limit: 1800m
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1800M
+        reservations:
+          memory: 512M
     command: /app/start_worker.sh
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
@@ -53,3 +61,14 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+
+  # clouflare tunnel 
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: always
+    mem_limit: 128m
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN} 
+    depends_on:
+      - web

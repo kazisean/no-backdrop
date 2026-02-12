@@ -4,3 +4,5 @@ celery==5.4.0
 redis==5.2.1
 python-multipart==0.0.20
 pillow==11.1.0
+slowapi==0.1.9
+limits==4.0.0

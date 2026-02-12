@@ -5,6 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from io import BytesIO
 import base64
 
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
 # import celery app instance
 from app.celery_app import celery_app
 from celery.result import AsyncResult
@@ -12,7 +16,6 @@ from celery.result import AsyncResult
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB Image Size Limit
 
 
-app = FastAPI()
 
 # allowed CORS origins
 origins = [
@@ -22,6 +25,19 @@ origins = [
     "http://localhost",
     "http://localhost:3000",
 ]
+
+# rate limit implementation
+def get_cloudflare_ip(request: Request):
+    return request.headers.get("cf-connecting-ip") or request.client.host
+
+limiter = Limiter(
+    key_func=get_cloudflare_ip,
+    storage_uri="redis://redis:6379/1" # wsing DB 1 to keep it sep from Celery
+)
+
+app = FastAPI()
+
+# Configure CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -31,7 +47,35 @@ app.add_middleware(
     expose_headers=["*"],
     max_age=3600,
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+@app.middleware("http")
+async def cloudflare_proxy_middleware(request: Request, call_next):
+    # cloudflare real user ipheader
+    real_ip = request.headers.get("cf-connecting-ip")
+    request.state.user_ip = real_ip or request.client.host
+    
+    # log request details for debugging CORS
+    origin = request.headers.get("origin", "none")
+    method = request.method
+    path = request.url.path
+    logging.info(f"[CORS DEBUG] {method} {path} from origin: {origin}")
+    
+    response = await call_next(request)
+    
+    # log response headers for debugging CORS
+    cors_header = response.headers.get("access-control-allow-origin", "NOT SET")
+    logging.info(f"[CORS DEBUG] Response CORS header: {cors_header}")
+    
+    # security header no bypassing the tunnel
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
+
+@app.on_event("startup")
+async def startup_event():
+    logging.info(f"[CORS CONFIG] Allowed origins: {origins}")
+    logging.info(f"[CORS CONFIG] CORS middleware configured with allow_methods: GET, POST, OPTIONS, HEAD")
 
 # home info
 @app.get("/")
@@ -45,7 +89,14 @@ async def health_check():
     return {"status": "healthy", "service": "fastapi-backdrop"}
 
 
+@app.options("/upload")
+async def upload_options(request: Request):
+    """Handle CORS preflight requests explicitly"""
+    logging.info(f"OPTIONS /upload received from {request.headers.get('origin', 'unknown')}")
+    return {"status": "ok"}
+
 @app.post("/upload", status_code=status.HTTP_202_ACCEPTED)
+@limiter.limit("5/minute")
 async def uploadFile(request: Request, file: UploadFile = File(...)):
 
     # validate : file type
